@@ -31,6 +31,7 @@ export class WindowManager {
 
     if (isDev) {
       window.loadURL(`http://localhost:${process.env.RENDERER_DEV_PORT}`);
+      window.webContents.openDevTools();
     } else {
       window.loadFile(path.resolve(__dirname, '../renderer/index.html'));
     }
@@ -39,7 +40,7 @@ export class WindowManager {
   }
 
   showWindow() {
-    app?.dock?.show();
+    // app?.dock?.show();
     if (BrowserWindow.getAllWindows().length === 0) {
       this.mainWindow = this.createWindow();
       Ipc.win = this.mainWindow;

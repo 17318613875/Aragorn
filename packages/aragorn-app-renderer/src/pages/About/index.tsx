@@ -1,4 +1,5 @@
-import { ipcRenderer, remote, shell } from 'electron';
+import { ipcRenderer, shell } from 'electron';
+import remote from '@electron/remote';
 import { Button, Divider } from 'antd';
 
 const AppUrl = 'https://github.com/njzydark/Aragorn';
@@ -24,7 +25,7 @@ export const About = () => {
         >
           {AppUrl}
         </a>
-        <p className="desc">v{remote.app.getVersion()}</p>
+        <p className="desc">v{remote && remote.app && remote.app.getVersion() || '未知版本'}</p>
         <Button type="primary" onClick={handleUpdate}>
           检查更新
         </Button>

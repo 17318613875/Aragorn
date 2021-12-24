@@ -1,10 +1,11 @@
 import React from 'react';
-import { Grid, Package, Box, Info, Settings, Upload, Server, IconProps } from 'react-feather';
+import { Grid, Package, Box, Info, LogIn, Settings, Upload, Server, IconProps } from 'react-feather';
 import { Dashboard } from '@renderer/pages/Dashboard';
 import { Uploader } from '@renderer/pages/Uploader';
 import { Profile } from '@renderer/pages/Profile';
 import { FileManage } from '@renderer/pages/FileManage';
 import { About } from '@renderer/pages/About';
+import { Login } from '@renderer/pages/Login';
 import { Setting } from '@renderer/pages/Setting';
 
 export type Routes = {
@@ -49,6 +50,13 @@ export const routes: Routes = [
     path: '/about',
     component: About,
     icon: Info,
+    isFooter: true
+  },
+  {
+    name: 'login',
+    path: '/login',
+    component: Login,
+    icon: LogIn,
     isFooter: true
   },
   {

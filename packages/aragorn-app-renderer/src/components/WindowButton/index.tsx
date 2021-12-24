@@ -1,8 +1,8 @@
 import { X, Maximize2, Minus } from 'react-feather';
-import { remote } from 'electron';
+import remote from '@electron/remote';
 import './index.less';
 
-const mainWindow = remote.getCurrentWindow();
+const mainWindow = remote && remote.getCurrentWindow();
 
 export const WindowButton = () => {
   function minWindow() {

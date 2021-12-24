@@ -33,15 +33,15 @@ export class Updater {
 
   checkUpdate(manul = false, useSystemNotification = false) {
     console.log('check update');
-    if (manul) {
-      this.sendMessage(
-        {
-          message: '正在检查更新...'
-        },
-        useSystemNotification
-      );
-    }
-    this.checkUpdateFromGithub(manul, useSystemNotification);
+    // if (manul) {
+    //   this.sendMessage(
+    //     {
+    //       message: '正在检查更新...'
+    //     },
+    //     useSystemNotification
+    //   );
+    // }
+    // this.checkUpdateFromGithub(manul, useSystemNotification);
   }
 
   protected async checkUpdateFromGithub(manul: boolean, useSystemNotification: boolean) {
