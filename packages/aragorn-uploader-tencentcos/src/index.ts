@@ -75,7 +75,7 @@ export class TencentCosUploader implements Uploader {
           desc: '上传失败'
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         desc: err.message as string
@@ -134,7 +134,7 @@ export class TencentCosUploader implements Uploader {
         success: true,
         data: [...dirData, ...filesData]
       };
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         desc: err.message
@@ -164,7 +164,7 @@ export class TencentCosUploader implements Uploader {
       } else {
         return { success: false };
       }
-    } catch (err) {
+    } catch (err: any) {
       return { success: false, desc: err.message };
     }
   }
@@ -186,7 +186,7 @@ export class TencentCosUploader implements Uploader {
       } else {
         return { success: false };
       }
-    } catch (err) {
+    } catch (err: any) {
       return { success: false, desc: err.message };
     }
   }

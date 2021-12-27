@@ -4,6 +4,7 @@
   ],
   "command": {
     "bootstrap": {
+      "ignore": "aragorn-app-renderer",
       "hoist": true
     }
   },

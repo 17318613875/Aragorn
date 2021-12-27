@@ -30,7 +30,7 @@ async function webServerCheck(port: number) {
   try {
     const res = await axios.get(`http://127.0.0.1:${port}`);
     return res.data?.includes('Aragorn WebServer is running');
-  } catch (err) {
+  } catch (err: any) {
     return false;
   }
 }
@@ -45,7 +45,7 @@ async function uploadByApp(filesPath: string[], port: number) {
     } else {
       console.log('upload fail');
     }
-  } catch (err) {
+  } catch (err: any) {
     console.log('upload by app fail: ', err.message);
   }
 }
@@ -116,7 +116,7 @@ async function uploadByCli(filesPath: string[], options: Options) {
     } else {
       console.log('upload fail');
     }
-  } catch (err) {
+  } catch (err: any) {
     console.log('upload by cli fail: ', err.message);
   }
 }

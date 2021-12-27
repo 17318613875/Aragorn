@@ -277,7 +277,7 @@ export class UploaderManager {
       console.log('upload finish');
 
       return successRes;
-    } catch (err) {
+    } catch (err: any) {
       console.error(`upload error: ${err.message}`);
       if (uploadOptions.isTest) {
         Ipc.sendMessage('uploader-profile-test-reply', false);
@@ -356,7 +356,7 @@ export class UploaderManager {
           })
           .catch(reject);
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error(`download error: ${err.message}`);
       Ipc.sendMessage('file-download-reply', err.message || '下载失败');
     }

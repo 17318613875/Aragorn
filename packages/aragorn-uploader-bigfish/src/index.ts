@@ -17,8 +17,9 @@ interface Config {
   params?: string;
 }
 
-export class CustomUploader implements Uploader {
-  name = '自定义';
+export class BigFishOssUploader implements Uploader {
+  name = '大鱼存储';
+  docUrl = 'https://wiki.imgo.tv/pages/viewpage.action?pageId=48228203';
   defaultOptions = defaultOptions;
   options = defaultOptions;
 

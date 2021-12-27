@@ -59,7 +59,7 @@ export class QiniuUploader implements Uploader {
           desc: '上传失败'
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         desc: err.message
@@ -124,7 +124,7 @@ export class QiniuUploader implements Uploader {
           desc: '文件列表获取失败'
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         desc: err.message
@@ -155,7 +155,7 @@ export class QiniuUploader implements Uploader {
       } else {
         return { success: false, desc: '删除失败' };
       }
-    } catch (err) {
+    } catch (err: any) {
       return { success: false, desc: err.message };
     }
   }
@@ -176,7 +176,7 @@ export class QiniuUploader implements Uploader {
         });
       });
       return { success: true };
-    } catch (err) {
+    } catch (err: any) {
       return { success: false, desc: err.message };
     }
   }

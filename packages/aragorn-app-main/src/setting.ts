@@ -183,7 +183,7 @@ export class Setting {
         });
       });
       return res;
-    } catch (err) {
+    } catch (err: any) {
       console.error(`install cli error: ${err.message}`);
     }
   }

@@ -10,7 +10,7 @@ export class UsersService {
   constructor(private http: HttpService) {}
   async findOne(body: LoginDTO): Promise<User | undefined> {
     try {
-      const { status, data, statusText } = await this.http
+      const { status, data, statusText } = (await this.http
         .post(`${ACL_URL}media/auth/user/login`, {
           appId: ACLAPPID,
           data: Object.assign({}, body, {
@@ -20,7 +20,11 @@ export class UsersService {
             password: undefined,
           }),
         })
-        .toPromise();
+        .toPromise()) || {
+        status: undefined,
+        data: undefined,
+        statusText: undefined,
+      };
       if (status === 200) {
         const { code, msg, message } = data;
         if (code === 200) {
@@ -43,7 +47,7 @@ export class UsersService {
           message: `[${status}]${statusText}`,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       throw new BadRequestException({
         message: error.message,
       });
@@ -51,7 +55,7 @@ export class UsersService {
   }
   async getMenus(user: UserInfo): Promise<User | undefined> {
     try {
-      const { status, data, statusText } = await this.http
+      const result: any = await this.http
         .post(`${ACL_URL}media/auth/permission/getMenuByUser`, {
           data: {
             appId: ACLAPPID,
@@ -59,6 +63,7 @@ export class UsersService {
           },
         })
         .toPromise();
+      const { status, data, statusText } = result;
       if (status === 200) {
         const { code, msg, message } = data;
         if (code === 200) {
@@ -102,7 +107,7 @@ export class UsersService {
           message: `[${status}]${statusText}`,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       throw new BadRequestException({
         message: error.message,
       });

@@ -95,7 +95,7 @@ export class Updater {
             useSystemNotification
           );
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(`check update error: ${err.message}`);
       manul &&
         this.sendMessage(

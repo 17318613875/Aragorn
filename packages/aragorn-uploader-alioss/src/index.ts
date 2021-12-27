@@ -73,7 +73,7 @@ export class AliOssUploader implements Uploader {
           desc: '上传失败'
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         desc: err.message as string
@@ -113,7 +113,7 @@ export class AliOssUploader implements Uploader {
         success: true,
         data
       };
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         desc: err.message
@@ -129,7 +129,7 @@ export class AliOssUploader implements Uploader {
         await this.client.deleteMulti(fileNames);
       }
       return { success: true };
-    } catch (err) {
+    } catch (err: any) {
       return { success: false, desc: err.message };
     }
   }
@@ -138,7 +138,7 @@ export class AliOssUploader implements Uploader {
     try {
       await this.client.put(`${directoryPath}/`, Buffer.from(''));
       return { success: true };
-    } catch (err) {
+    } catch (err: any) {
       return { success: false, desc: err.message };
     }
   }

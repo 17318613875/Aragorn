@@ -60,7 +60,7 @@ export class UpyunUploader implements Uploader {
           desc: '上传失败'
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         desc: err.message
@@ -93,7 +93,7 @@ export class UpyunUploader implements Uploader {
           data: []
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         desc: err.message
@@ -110,7 +110,7 @@ export class UpyunUploader implements Uploader {
         await Promise.all(promises);
       }
       return { success: true };
-    } catch (err) {
+    } catch (err: any) {
       return { success: false, desc: err.message };
     }
   }
@@ -119,7 +119,7 @@ export class UpyunUploader implements Uploader {
     try {
       await this.client.makeDir(`${directoryPath}/`);
       return { success: true };
-    } catch (err) {
+    } catch (err: any) {
       return { success: false, desc: err.message };
     }
   }

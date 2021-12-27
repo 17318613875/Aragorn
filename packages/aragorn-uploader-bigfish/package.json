@@ -1,0 +1,38 @@
+{
+  "name": "aragorn-uploader-bigfish",
+  "version": "1.0.0",
+  "description": "Big Fish uploader",
+  "author": "彭斌斌 <binbin@mgtv.com>",
+  "homepage": "https://github.com/njzydark/Aragorn#readme",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rimraf -rf ./dist",
+    "compile": "tsc -p tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/njzydark/Aragorn.git"
+  },
+  "bugs": {
+    "url": "https://github.com/njzydark/Aragorn/issues"
+  },
+  "dependencies": {
+    "aragorn-types": "^1.0.0",
+    "axios": "^0.21.1",
+    "form-data": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.5",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.1.3"
+  }
+}

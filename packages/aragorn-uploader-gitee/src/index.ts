@@ -84,7 +84,7 @@ export class GiteeUploader implements Uploader {
           desc: res.data.message
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         desc: err.message
@@ -133,7 +133,7 @@ export class GiteeUploader implements Uploader {
           desc: res.data.message
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         desc: err.message
@@ -173,7 +173,7 @@ export class GiteeUploader implements Uploader {
 
       await Promise.all(promises);
       return { success: true };
-    } catch (err) {
+    } catch (err: any) {
       return { success: false, desc: err.message };
     }
   }
@@ -202,7 +202,7 @@ export class GiteeUploader implements Uploader {
           desc: res.data.message
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       return { success: false, desc: err.message };
     }
   }

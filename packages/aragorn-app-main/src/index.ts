@@ -13,7 +13,7 @@ try {
   reloader(module, {
     watchRenderer: false
   });
-} catch (err) {
+} catch (err: any) {
   console.error(err);
 }
 

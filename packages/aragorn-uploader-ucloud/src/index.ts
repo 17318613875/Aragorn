@@ -45,7 +45,7 @@ export class UCloudUploader implements Uploader {
           desc: '上传失败'
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         desc: err.message
@@ -143,7 +143,7 @@ export class UCloudUploader implements Uploader {
             // 发起请求
             const res = await axios(requestOpetion);
             resolve(res);
-          } catch (err) {
+          } catch (err: any) {
             console.log('上传失败', err.message);
             reject(err);
           }
