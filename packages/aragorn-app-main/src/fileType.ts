@@ -1,4 +1,4 @@
-import { createReadStream, readdirSync, stat, Stats, statSync } from 'fs';
+import { createReadStream, readdirSync, promises as fsPromises, stat, Stats, statSync } from 'fs';
 import { extname, basename, join } from 'path';
 import { readChunkSync } from './read-chunk';
 // import { FileExtension, fileTypeFromBuffer, MimeType } from 'file-type';
@@ -122,9 +122,14 @@ export function GetFileInfo(
       let detail: any;
       if (type && fileOpts.mediaExt.includes(type)) {
         const mediainfo = (await MediaInfoFactory({ format: 'JSON', coverData: true })) as MediaInfo;
+        const fileHandle = await fsPromises.open(pathway, 'r');
         detail = await mediainfo.analyzeData(
           () => size,
-          (size: number, offset: number) => readChunkSync(pathway, { length: size, startPosition: offset })
+          async (size: number, offset: number) => {
+            const buffer = new Uint8Array(size);
+            await (fileHandle as fsPromises.FileHandle).read(buffer, 0, size, offset);
+            return buffer;
+          }
         );
       }
       console.log('detail =>', detail);
