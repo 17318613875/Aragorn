@@ -64,7 +64,8 @@ export const Dashboard = () => {
   const handlePause = (row: UploadedFileInfo) => {};
   const handleAbort = (row: UploadedFileInfo) => {};
   const handleReUpload = (row: UploadedFileInfo) => {
-    ipcRenderer.send('file-reupload', [{ id: row.uploaderProfileId, path: row.path }]);
+    ipcRenderer.send('file-upload-by-ids', [row.id]);
+    // ipcRenderer.send('file-reupload', [{ id: row.uploaderProfileId, path: row.path }]);
   };
 
   const handleReUploads = () => {
@@ -98,7 +99,7 @@ export const Dashboard = () => {
       case 1:
         return '等待上传';
       case 2:
-        return `上传中${process || 0}`;
+        return `上传中-${process || 0}%`;
       case 3:
         return '上传完成';
       case 4:
@@ -280,7 +281,7 @@ export const Dashboard = () => {
                     multiple: true,
                     showUploadList: false,
                     beforeUpload(file: File, fileList) {
-                      ipcRenderer.send('history-add-file-by-filesPath', [file.path]);
+                      ipcRenderer.send('history-add-file-by-filesPath', [file.path], { uploader: 'binbin' });
                       return false;
                     }
                   }}

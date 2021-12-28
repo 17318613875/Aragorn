@@ -68,9 +68,9 @@ export class Ipc {
   }
 
   protected uploadHandle() {
-    ipcMain.on('history-add-file-by-filesPath', (_, filesPath: string[]) => {
+    ipcMain.on('history-add-file-by-filesPath', (_, filesPath: string[], mergeData?: any) => {
       // 通过文件路径添加至列表
-      this.history.addFileByFilesPath(filesPath);
+      this.history.addFileByFilesPath(filesPath, mergeData);
     });
     ipcMain.on('history-update-file-info-by-ids', (_, ids: string[]) => {
       // 通过文件IDs更新文件详情

@@ -41,7 +41,7 @@ export class History {
   }
 
   // 通过路径添加文件
-  async addFileByFilesPath(filesPath: string[], customUploaderProfileId?: string) {
+  async addFileByFilesPath(filesPath: string[], mergeData: any = {}) {
     console.log('add uplpad history by filesPath');
     if (!(Array.isArray(filesPath) && filesPath.findIndex(id => id && typeof id !== 'string') < 0)) {
       console.error('addFileByFilesPath [filesPath type error]');
@@ -53,12 +53,13 @@ export class History {
     const uploaderProfiles = this.uploaderProfileManager.getAll();
     let uploaderProfile: UploaderProfile | undefined;
     uploaderProfile = uploaderProfiles.find(
-      uploaderProfile => uploaderProfile.id === (customUploaderProfileId || defaultUploaderProfileId)
+      uploaderProfile => uploaderProfile.id === (mergeData?.customUploaderProfileId || defaultUploaderProfileId)
     );
     const uploadedFiles = filesPath.map(file => {
       const fileName = this.core.getFileNameByFormat(file, rename, renameFormat, false);
       const fileType = mime.lookup(file);
       return {
+        ...mergeData,
         id: uuidv4(),
         name: basename(fileName),
         type: fileType,

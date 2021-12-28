@@ -29,15 +29,17 @@ export class BigFishOssUploader implements Uploader {
 
   async upload(options: UploadOptions, opts?: UploadOpts): Promise<UploadResponse> {
     try {
-      const { file, fileName, md5, size } = options;
+      const { file, fileName, md5, size, plat, uploader } = options;
       const formData = new FormData();
       const uploaderOptions = this.getConfig();
       const fileStream = Buffer.isBuffer(file) ? file : createReadStream(file);
       formData.append(uploaderOptions.fileFieldName, fileStream, { filename: fileName });
+      formData.append('plat', plat);
+      formData.append('uploader', uploader);
       formData.append('fileSize', size);
       formData.append('fileMd5', md5);
       formData.append('cloud', 0);
-      formData.append('transdata', { test: Date.now() });
+      formData.append('transdata', JSON.stringify({ test: Date.now() }));
       formData.append('isChunk', 0);
       // formData.append('chunkNo', 0)
       // formData.append('chunkSize', 0)
@@ -64,34 +66,16 @@ export class BigFishOssUploader implements Uploader {
         onUploadProgress: opts?.process
       };
       // 发起请求
-      const result = await axios(requestOpetion);
-      const { data: res } = result;
-      console.log(result);
-      let imageUrl = uploaderOptions.responseUrlFieldName?.split('.').reduce((pre, cur) => {
-        try {
-          return pre[cur];
-        } catch (err: any) {
-          return undefined;
-        }
-      }, res);
-      if (imageUrl) {
+      const { status, statusText, data } = await axios(requestOpetion);
+      if (status === 200 && data && data.code === 200) {
         return {
           success: true,
-          data: {
-            url: imageUrl + uploaderOptions.params || ''
-          }
+          data
         };
       } else {
-        const message = uploaderOptions?.responseMessageName?.split('.').reduce((pre, cur) => {
-          try {
-            return pre[cur];
-          } catch (err: any) {
-            return undefined;
-          }
-        }, res);
         return {
           success: false,
-          desc: message || '上传失败'
+          desc: (data && data.data) || statusText || '上传失败'
         };
       }
     } catch (err: any) {

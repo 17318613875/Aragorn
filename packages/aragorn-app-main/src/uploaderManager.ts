@@ -20,6 +20,8 @@ export interface UploadedFileInfo {
   name?: string;
   url?: string;
   md5?: string;
+  plat?: number;
+  uploader?: string;
   status?: number;
   process?: number;
   /** 文件类型 MimeType */
@@ -238,6 +240,8 @@ export class UploaderManager {
           {
             file: baseInfo.path,
             fileName: baseInfo.name || '',
+            plat: baseInfo.plat || 1,
+            uploader: baseInfo.uploader || 'binbin',
             md5: baseInfo.md5,
             size: baseInfo.size,
             directoryPath: '',
@@ -245,6 +249,7 @@ export class UploaderManager {
           },
           {
             process: (process: number) => {
+              console.log('process =>', baseInfo.path, process);
               this.history.updateFileInfoByIds([baseInfo.id], { status: 2, process });
             }
           }
