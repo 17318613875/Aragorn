@@ -5,7 +5,8 @@ import {
   UploadResponse,
   FileListResponse,
   DeleteFileResponse,
-  CreateDirectoryResponse
+  CreateDirectoryResponse,
+  UploadOpts
 } from 'aragorn-types';
 import OSS from 'ali-oss';
 import { options as defaultOptions } from './options';
@@ -39,7 +40,7 @@ export class AliOssUploader implements Uploader {
     this.client = new OSS(this.config);
   }
 
-  async upload(options: UploadOptions): Promise<UploadResponse> {
+  async upload(options: UploadOptions, opts?: UploadOpts): Promise<UploadResponse> {
     try {
       const { file, fileName, directoryPath, isFromFileManage } = options;
       const fileStream = this.getStream(file);
@@ -51,6 +52,47 @@ export class AliOssUploader implements Uploader {
         newFileName = path ? `${path}/${fileName}` : fileName;
       }
       let putRes = await this.client.put(newFileName, fileStream);
+      if (putRes?.res?.status !== 200) {
+        return {
+          success: false,
+          desc: '上传失败'
+        };
+      }
+      let url = await this.client.generateObjectUrl(newFileName);
+      if (url) {
+        const errorDomain = endpoint ? `${bucket}.${endpoint.replace(/(https?:\/\/|www\.)/, '')}` : '';
+        if (errorDomain && url.includes(errorDomain)) {
+          url = url.replace(errorDomain, endpoint.replace(/(https?:\/\/|www\.)/, ''));
+        }
+        return {
+          success: true,
+          data: { url: url + params }
+        };
+      } else {
+        return {
+          success: false,
+          desc: '上传失败'
+        };
+      }
+    } catch (err: any) {
+      return {
+        success: false,
+        desc: err.message as string
+      };
+    }
+  }
+
+  async multipartUpload(options: UploadOptions, opts?: UploadOpts): Promise<UploadResponse> {
+    try {
+      const { file, fileName, directoryPath, isFromFileManage } = options;
+      const { path, bucket, endpoint = '', params = '' } = this.config;
+      let newFileName = '';
+      if (isFromFileManage) {
+        newFileName = directoryPath ? `${directoryPath}/${fileName}` : fileName;
+      } else {
+        newFileName = path ? `${path}/${fileName}` : fileName;
+      }
+      let putRes = await this.client.multipartUpload(newFileName, file, opts);
       if (putRes?.res?.status !== 200) {
         return {
           success: false,

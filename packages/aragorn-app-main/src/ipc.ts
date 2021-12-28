@@ -68,8 +68,21 @@ export class Ipc {
   }
 
   protected uploadHandle() {
+    ipcMain.on('history-add-file-by-filesPath', (_, filesPath: string[]) => {
+      // 通过文件路径添加至列表
+      this.history.addFileByFilesPath(filesPath);
+    });
+    ipcMain.on('history-update-file-info-by-ids', (_, ids: string[]) => {
+      // 通过文件IDs更新文件详情
+      this.history.updateFileInfoByIds(ids);
+    });
+
     ipcMain.on('file-upload-by-side-menu', (_, filesPath: string[]) => {
       this.uploaderManager.upload({ files: filesPath });
+    });
+    ipcMain.on('file-upload-by-ids', (_, ids: string[]) => {
+      // 通过文件IDs开始上传
+      this.uploaderManager.fileUploadByFilesId(ids);
     });
 
     ipcMain.on('file-reupload', (_, data) => {

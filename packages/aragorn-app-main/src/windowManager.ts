@@ -18,8 +18,8 @@ export class WindowManager {
 
   createWindow(): BrowserWindow {
     const window = new BrowserWindow({
-      width: 950,
-      height: 700,
+      width: 1024,
+      height: 900,
       titleBarStyle: 'hidden',
       frame: false,
       webPreferences: {

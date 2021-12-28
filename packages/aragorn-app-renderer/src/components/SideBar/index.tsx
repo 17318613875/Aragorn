@@ -3,6 +3,7 @@ import { ipcRenderer } from 'electron';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Routes } from '@renderer/routes';
 import './index.less';
+import { Tooltip } from 'antd';
 
 interface Props {
   routes: Routes;
@@ -18,13 +19,14 @@ const Menu = ({ routes, current, handleSideChange }: MenuProps) => {
   return (
     <>
       {routes.map(route => (
-        <div
-          key={route.name}
-          className={route.name === current ? 'menu-item menu-active' : 'menu-item'}
-          onClick={() => handleSideChange(route)}
-        >
-          <route.icon className="menu-icon" />
-        </div>
+        <Tooltip placement="right" title={route.meta?.title} key={route.name}>
+          <div
+            className={route.name === current ? 'menu-item menu-active' : 'menu-item'}
+            onClick={() => handleSideChange(route)}
+          >
+            <route.icon className="menu-icon" />
+          </div>
+        </Tooltip>
       ))}
     </>
   );

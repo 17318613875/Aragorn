@@ -14,6 +14,9 @@ export type Routes = {
   component?: React.FunctionComponent;
   icon: React.FC<IconProps>;
   isFooter?: boolean;
+  meta?: {
+    title?: string;
+  };
 }[];
 
 export const routes: Routes = [
@@ -21,49 +24,73 @@ export const routes: Routes = [
     name: 'dashboard',
     path: '/',
     component: Dashboard,
-    icon: Grid
+    icon: Grid,
+    meta: {
+      title: '控制台'
+    }
   },
   {
     name: 'uploader',
     path: '/uploader',
     component: Uploader,
-    icon: Package
+    icon: Package,
+    meta: {
+      title: '上传器'
+    }
   },
   {
     name: 'profile',
     path: '/profile/:id?',
     component: Profile,
-    icon: Box
+    icon: Box,
+    meta: {
+      title: '上传器-配置'
+    }
   },
   {
     name: 'fileManage',
     path: '/fileManage/:id?',
     component: FileManage,
-    icon: Server
+    icon: Server,
+    meta: {
+      title: '文件管理'
+    }
   },
   {
     name: 'upload',
-    icon: Upload
+    icon: Upload,
+    meta: {
+      title: '上传'
+    }
   },
   {
     name: 'about',
     path: '/about',
     component: About,
     icon: Info,
-    isFooter: true
+    isFooter: true,
+    meta: {
+      title: '关于我们'
+    }
   },
   {
     name: 'login',
     path: '/login',
     component: Login,
     icon: LogIn,
-    isFooter: true
+    isFooter: true,
+    meta: {
+      title: '登录'
+    }
   },
   {
     name: 'setting',
     path: '/setting',
     component: Setting,
     icon: Settings,
-    isFooter: true
+    isFooter: true,
+    meta: {
+      title: '设置'
+    }
   }
 ];

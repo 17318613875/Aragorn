@@ -1,4 +1,4 @@
-import { Uploader, UploaderOptions, UploadOptions, UploadResponse } from 'aragorn-types';
+import { Uploader, UploaderOptions, UploadOptions, UploadOpts, UploadResponse } from 'aragorn-types';
 import axios, { AxiosRequestConfig } from 'axios';
 import FormData from 'form-data';
 import { createReadStream } from 'fs';
@@ -27,13 +27,21 @@ export class BigFishOssUploader implements Uploader {
     this.options = newOptions;
   }
 
-  async upload(options: UploadOptions): Promise<UploadResponse> {
+  async upload(options: UploadOptions, opts?: UploadOpts): Promise<UploadResponse> {
     try {
-      const { file, fileName } = options;
+      const { file, fileName, md5, size } = options;
       const formData = new FormData();
       const uploaderOptions = this.getConfig();
       const fileStream = Buffer.isBuffer(file) ? file : createReadStream(file);
       formData.append(uploaderOptions.fileFieldName, fileStream, { filename: fileName });
+      formData.append('fileSize', size);
+      formData.append('fileMd5', md5);
+      formData.append('cloud', 0);
+      formData.append('transdata', { test: Date.now() });
+      formData.append('isChunk', 0);
+      // formData.append('chunkNo', 0)
+      // formData.append('chunkSize', 0)
+      // formData.append('chunkMd5', 0)
       const length = await new Promise((resolve, reject) => {
         formData.getLength(async (err, length) => {
           if (err) {
@@ -52,10 +60,13 @@ export class BigFishOssUploader implements Uploader {
           Authorization: uploaderOptions.token || ''
         },
         params: uploaderOptions.requestParams ? JSON.parse(uploaderOptions.requestParams) : {},
-        data: uploaderOptions.contentType === 'multipart/form-data' ? formData : uploaderOptions.requestBody
+        data: uploaderOptions.contentType === 'multipart/form-data' ? formData : uploaderOptions.requestBody,
+        onUploadProgress: opts?.process
       };
       // 发起请求
-      const { data: res } = await axios(requestOpetion);
+      const result = await axios(requestOpetion);
+      const { data: res } = result;
+      console.log(result);
       let imageUrl = uploaderOptions.responseUrlFieldName?.split('.').reduce((pre, cur) => {
         try {
           return pre[cur];
@@ -83,6 +94,21 @@ export class BigFishOssUploader implements Uploader {
           desc: message || '上传失败'
         };
       }
+    } catch (err: any) {
+      return {
+        success: false,
+        desc: err.message
+      };
+    }
+  }
+
+  async multipartUpload(options: UploadOptions, opts?: UploadOpts): Promise<UploadResponse> {
+    try {
+      const { file, fileName } = options;
+      return {
+        success: false,
+        desc: '上传失败'
+      };
     } catch (err: any) {
       return {
         success: false,

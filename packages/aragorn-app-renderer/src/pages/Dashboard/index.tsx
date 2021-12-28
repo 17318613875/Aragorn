@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { clipboard, shell, ipcRenderer } from 'electron';
-import { Table, message, Popover, Space, Button, Badge, Image, Divider } from 'antd';
+import { Table, message, Popover, Space, Button, Badge, Image, Divider, Row, Upload } from 'antd';
 import { useHistory } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { useAppContext } from '@renderer/context/app';
 import { Plus, Box } from 'react-feather';
 import { UploadedFileInfo } from '@main/uploaderManager';
-import { CopyOutlined, DeleteOutlined, FolderOpenOutlined, UploadOutlined } from '@ant-design/icons';
+import { CopyOutlined, DeleteOutlined, FolderOpenOutlined, SyncOutlined, UploadOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/lib/table/interface';
 
 export const Dashboard = () => {
@@ -55,7 +55,19 @@ export const Dashboard = () => {
     setRowKeys([]);
   };
 
-  const handleReUpload = () => {
+  const handleReInitFileInfo = (row: UploadedFileInfo) => {
+    ipcRenderer.send('history-update-file-info-by-ids', [row.id]);
+  };
+  const handleUpload = (row: UploadedFileInfo) => {
+    ipcRenderer.send('file-upload-by-ids', [row.id]);
+  };
+  const handlePause = (row: UploadedFileInfo) => {};
+  const handleAbort = (row: UploadedFileInfo) => {};
+  const handleReUpload = (row: UploadedFileInfo) => {
+    ipcRenderer.send('file-reupload', [{ id: row.uploaderProfileId, path: row.path }]);
+  };
+
+  const handleReUploads = () => {
     const data = selectRows.map(item => {
       return { id: item.uploaderProfileId, path: item.path };
     });
@@ -63,9 +75,95 @@ export const Dashboard = () => {
     setRowKeys([]);
   };
 
+  const getStatusType = (key: number) => {
+    switch (key) {
+      case 0:
+        return 'warning';
+      case 1:
+        return 'default';
+      case 2:
+        return 'processing';
+      case 3:
+        return 'success';
+      case 4:
+        return 'error';
+      default:
+        return 'error';
+    }
+  };
+  const getStatusText = (key: number, process?: number) => {
+    switch (key) {
+      case 0:
+        return '初始化中';
+      case 1:
+        return '等待上传';
+      case 2:
+        return `上传中${process || 0}`;
+      case 3:
+        return '上传完成';
+      case 4:
+        return '上传失败';
+      default:
+        return key;
+    }
+  };
+
+  const getHandler = (record: UploadedFileInfo) => {
+    if (!record.md5) {
+      return (
+        <Space>
+          <Button type="text" onClick={() => handleReInitFileInfo(record)} key={0}>
+            重新初始化
+          </Button>
+        </Space>
+      );
+    } else {
+      switch (record.status) {
+        case 0:
+          return (
+            <Space>
+              <Button type="text" onClick={() => handleReInitFileInfo(record)} key={0}>
+                重新初始化
+              </Button>
+            </Space>
+          );
+        case 1:
+          return (
+            <Space>
+              <Button type="text" onClick={() => handleUpload(record)} key={1}>
+                开始上传
+              </Button>
+            </Space>
+          );
+        case 2:
+          return (
+            <Space>
+              <Button type="text" onClick={() => handlePause(record)} key={2}>
+                暂停
+              </Button>
+              <Button type="text" onClick={() => handleAbort(record)} key={3}>
+                取消
+              </Button>
+            </Space>
+          );
+        case 3:
+        case 4:
+          return (
+            <Space>
+              <Button type="text" onClick={() => handleReUpload(record)} key={4}>
+                重新上传
+              </Button>
+            </Space>
+          );
+        default:
+          return <></>;
+      }
+    }
+  };
+
   const columns: ColumnsType<UploadedFileInfo> = [
     {
-      title: '文件名',
+      title: '文件名/路径',
       dataIndex: 'name',
       ellipsis: true,
       render: (val, record) => (
@@ -84,23 +182,33 @@ export const Dashboard = () => {
           }
           trigger="hover"
         >
-          <span onClick={() => handleCopy(record.url)} className="row-item">
+          <div onClick={() => record.url && handleCopy(record.url)} className="row-item">
             {val}
-          </span>
+          </div>
+          <div style={{ fontSize: '10px' }}>{record.path}</div>
         </Popover>
+      )
+    },
+    {
+      title: 'MD5/ID',
+      dataIndex: 'md5',
+      ellipsis: true,
+      render: (val, record) => (
+        <>
+          <div>{val}</div>
+          <div style={{ fontSize: '10px' }}>{record.id}</div>
+        </>
       )
     },
     {
       title: '类型',
       dataIndex: 'type',
-      ellipsis: true,
-      width: 120
+      ellipsis: true
     },
     {
       title: '上传器配置',
       dataIndex: 'uploaderProfileId',
       ellipsis: true,
-      width: 120,
       render: val => (
         <a onClick={() => handleProfileClick(val)}>
           {uploaderProfiles.find(item => item.id === val)?.name || '未找到'}
@@ -109,35 +217,27 @@ export const Dashboard = () => {
     },
     {
       title: '状态',
-      dataIndex: 'url',
+      dataIndex: 'status',
       ellipsis: true,
-      width: 80,
-      render: val => (
+      width: 120,
+      render: (val, record) => (
         <>
-          <Badge status={val ? 'success' : 'error'} />
-          {val ? '成功' : '失败'}
+          <Badge status={getStatusType(val)} />
+          <span>{getStatusText(val, record.process)}</span>
         </>
       )
     },
     {
       title: '上传时间',
       dataIndex: 'date',
-      width: 180,
       ellipsis: true,
       render: val => dayjs(val).format('YYYY-MM-DD HH:mm:ss')
     },
     {
       title: '操作',
-      width: 80,
-      render: (_, record) => (
-        <Space>
-          <FolderOpenOutlined onClick={() => handleOpen(record.path)} />
-          <CopyOutlined onClick={() => handleCopy(record.url)} />
-        </Space>
-      )
+      render: (_, record) => <Space>{getHandler(record)}</Space>
     }
   ];
-
   return (
     <div className="dashboard-page">
       <header>
@@ -164,18 +264,35 @@ export const Dashboard = () => {
           </div>
         </div>
         <div className="history-wrapper">
-          <div className="title">最近上传</div>
-          <div className="card-wrapper">
-            {selectRowKeys.length > 0 && (
+          <Row justify="space-between">
+            <div className="title">最近上传</div>
+            <div>
               <Space style={{ marginBottom: 10 }}>
-                <Button icon={<DeleteOutlined />} onClick={handleClear}>
+                <Button icon={<DeleteOutlined />} onClick={handleClear} disabled={!selectRowKeys.length}>
                   清除
                 </Button>
-                <Button icon={<UploadOutlined />} onClick={handleReUpload}>
+                <Button icon={<UploadOutlined />} onClick={handleReUploads} disabled={!selectRowKeys.length}>
                   重新上传
                 </Button>
+                <Upload
+                  {...{
+                    name: 'file',
+                    multiple: true,
+                    showUploadList: false,
+                    beforeUpload(file: File, fileList) {
+                      ipcRenderer.send('history-add-file-by-filesPath', [file.path]);
+                      return false;
+                    }
+                  }}
+                >
+                  <Button type="dashed" icon={<UploadOutlined />}>
+                    Click or drag to Upload
+                  </Button>
+                </Upload>
               </Space>
-            )}
+            </div>
+          </Row>
+          <div className="card-wrapper">
             <Table
               size="small"
               rowKey="id"

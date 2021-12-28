@@ -6,6 +6,9 @@
   "homepage": "https://github.com/njzydark/Aragorn#readme",
   "license": "MIT",
   "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/njzydark/Aragorn.git"

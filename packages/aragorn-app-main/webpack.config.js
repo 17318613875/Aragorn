@@ -42,6 +42,18 @@ module.exports = {
     rules: [
       {
         test: /\.(js|jsx|ts|tsx)$/,
+        loader: 'webpack-replace-loader',
+        options: {
+          arr: [
+            {search: 'node:util', replace: 'util'},
+            {search: 'node:fs', replace: 'fs'},
+            {search: 'node:buffer', replace: 'buffer'},
+            {search: 'node:stream', replace: 'stream'},
+          ]
+        }
+      },
+      {
+        test: /\.(js|jsx|ts|tsx)$/,
         exclude: /(node_modules)/,
         enforce: 'pre',
         use: [

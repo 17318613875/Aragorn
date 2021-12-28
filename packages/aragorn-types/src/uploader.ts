@@ -12,7 +12,9 @@ export interface Uploader {
   /** 批量上传模式 并发和顺序 */
   batchUploadMode?: BatchUploadMode;
   /** 文件上传 */
-  upload: (options: UploadOptions) => Promise<UploadResponse>;
+  upload: (options: UploadOptions, opts?: UploadOpts) => Promise<UploadResponse>;
+  /** 文件上传 */
+  multipartUpload?: (options: UploadOptions, opts?: UploadOpts) => Promise<UploadResponse>;
   /** 获取文件列表 */
   getFileList?: (directoryPath?: string) => Promise<FileListResponse>;
   /** 删除文件 */
@@ -28,6 +30,9 @@ export interface UploadOptions {
   directoryPath?: string;
   isFromFileManage?: boolean;
   [property: string]: any;
+}
+export interface UploadOpts {
+  process: (num: number) => void;
 }
 
 export type BatchUploadMode = 'Concurrent' | 'Sequence';

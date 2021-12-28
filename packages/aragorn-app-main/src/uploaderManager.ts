@@ -13,11 +13,15 @@ import { UploaderProfile, UploaderProfileManager } from './uploaderProfileManage
 import { AragornCore } from 'aragorn-core';
 import { Ipc } from './ipc';
 
+type Status = 0 | 1 | 2 | 3 | 4; // 初始化中 等待上传 上传中 上传完成 上传失败
 /** 上传成功之后的文件信息 */
 export interface UploadedFileInfo {
-  id?: string;
+  id: string;
   name?: string;
   url?: string;
+  md5?: string;
+  status?: number;
+  process?: number;
   /** 文件类型 MimeType */
   type: string;
   /** 上传器配置 Id */
@@ -165,6 +169,114 @@ export class UploaderManager {
       isTest: true
     };
     this.upload(data);
+  }
+
+  // 通过文件路径开始上传
+  async fileUploadByFilesId(ids: string[], customUploaderProfileId?: string) {
+    if (!(Array.isArray(ids) && ids.findIndex(id => id && typeof id !== 'string') < 0)) {
+      console.error('fileUploadByFilesId [ids type error]');
+      return;
+    }
+    try {
+      // const { files, customUploaderProfileId, directoryPath, isFromFileManage } = uploadOptions;
+      console.log('upload by filesPath start', ids);
+      const {
+        configuration: { defaultUploaderProfileId, proxy, rename, renameFormat }
+      } = this.setting;
+      const uploaderProfiles = this.uploaderProfileManager.getAll();
+      let uploaderProfile = uploaderProfiles.find(
+        uploaderProfile => uploaderProfile.id === (customUploaderProfileId || defaultUploaderProfileId)
+      );
+
+      let notification: Notification;
+      if (!uploaderProfile) {
+        if (customUploaderProfileId) {
+          console.warn('upload failed: no uploader profile');
+          notification = new Notification({ title: '上传操作异常', body: `上传器配置不存在` });
+        } else {
+          console.warn('upload failed: no default uploader profile');
+          const message = uploaderProfiles.length > 0 ? '请配置默认的上传器' : '请添加上传器配置';
+          notification = new Notification({ title: '上传操作异常', body: message });
+        }
+        notification.show();
+        return false;
+      }
+
+      const uploader = this.core.getUploaderByName(uploaderProfile.uploaderName);
+
+      if (!uploader) {
+        console.warn('upload failed: not found uploader');
+        const message = `没有找到${uploaderProfile.uploaderName}上传器`;
+        const notification = new Notification({ title: '上传操作异常', body: message });
+        notification.show();
+        return false;
+      }
+
+      uploader.changeOptions(uploaderProfile.uploaderOptions, proxy);
+
+      const successRes: UploadedFileInfo[] = [];
+      const failRes: UploadedFileInfo[] = [];
+
+      const uploadQuence = [] as any[];
+      const allFiles = this.history.get();
+
+      const toUpload = async (id: string, index: number, uploadQuence: any[]) => {
+        const baseInfo = allFiles.find(file => file.id === id);
+        if (!baseInfo) {
+          console.warn('upload failed: not found file');
+          const message = `没有找到上传文件`;
+          const notification = new Notification({ title: '上传操作异常', body: message });
+          notification.show();
+          return false;
+        }
+
+        if (uploader.batchUploadMode === 'Sequence' && index > 0) {
+          await uploadQuence[index - 1];
+        }
+
+        const res = await uploader.upload(
+          {
+            file: baseInfo.path,
+            fileName: baseInfo.name || '',
+            md5: baseInfo.md5,
+            size: baseInfo.size,
+            directoryPath: '',
+            isFromFileManage: false
+          },
+          {
+            process: (process: number) => {
+              this.history.updateFileInfoByIds([baseInfo.id], { status: 2, process });
+            }
+          }
+        );
+        if (res.success) {
+          successRes.push({ ...baseInfo, ...res.data });
+        } else {
+          failRes.push({ ...baseInfo, errorMessage: res.desc });
+        }
+      };
+
+      const promises = ids.map((id, index) => {
+        const res = toUpload(id, index, uploadQuence);
+        uploadQuence.push(res);
+        return res;
+      });
+
+      this.history.updateFileInfoByIds(ids as string[], { status: 2 });
+      await Promise.all(promises);
+      this.history.updateFileInfoByIds(
+        successRes.map(item => item.id),
+        { status: 3, process: 100 }
+      );
+      this.history.updateFileInfoByIds(
+        failRes.map(item => item.id),
+        { status: 4, process: 0 }
+      );
+    } catch (err: any) {
+      console.error(`upload error: ${err.message}`);
+      const notification = new Notification({ title: '上传操作异常', body: err.message });
+      notification.show();
+    }
   }
 
   async upload(uploadOptions: UploadOptions) {
